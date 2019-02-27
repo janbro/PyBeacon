@@ -275,14 +275,14 @@ def scan(duration=None):
     If duration is set to None, it scans until interrupted.
     """
     print("Scanning...")
-    subprocess.call("sudo hciconfig hci0 reset", shell=True, stdout=DEVNULL)
+    subprocess.call("hciconfig hci0 reset", shell=True, stdout=DEVNULL)
 
     lescan = subprocess.Popen(
-            ["sudo", "-n", "hcitool", "lescan", "--duplicates"],
+            ["hcitool", "lescan", "--duplicates"],
             stdout=DEVNULL)
 
     dump = subprocess.Popen(
-            ["sudo", "-n", "hcidump", "--raw"],
+            ["hcidump", "--raw"],
             stdout=subprocess.PIPE)
 
     packet = None
@@ -308,8 +308,8 @@ def scan(duration=None):
     except KeyboardInterrupt:
         pass
 
-    subprocess.call(["sudo", "kill", str(dump.pid), "-s", "SIGINT"])
-    subprocess.call(["sudo", "-n", "kill", str(lescan.pid), "-s", "SIGINT"])
+    subprocess.call(["kill", str(dump.pid), "-s", "SIGINT"])
+    subprocess.call(["kill", str(lescan.pid), "-s", "SIGINT"])
 
 def advertise(ad, beacon_type=Eddystone.url):
     """Advertise an eddystone URL."""
@@ -330,25 +330,25 @@ def advertise(ad, beacon_type=Eddystone.url):
     message = " ".join(message)
     verboseOutput("Message: " + message)
 
-    subprocess.call("sudo hciconfig hci0 up",
+    subprocess.call("hciconfig hci0 up",
                     shell=True, stdout=DEVNULL)
 
     # Stop advertising
-    subprocess.call("sudo hcitool -i hci0 cmd 0x08 0x000a 00",
+    subprocess.call("hcitool -i hci0 cmd 0x08 0x000a 00",
                     shell=True, stdout=DEVNULL)
 
     # Set message
-    subprocess.call("sudo hcitool -i hci0 cmd 0x08 0x0008 " + message,
+    subprocess.call("hcitool -i hci0 cmd 0x08 0x0008 " + message,
                     shell=True, stdout=DEVNULL)
 
     # Resume advertising
-    subprocess.call("sudo hcitool -i hci0 cmd 0x08 0x000a 01",
+    subprocess.call("hcitool -i hci0 cmd 0x08 0x000a 01",
                     shell=True, stdout=DEVNULL)
 
 def stopAdvertising():
     """Stop advertising."""
     print("Stopping advertising")
-    subprocess.call("sudo hcitool -i hci0 cmd 0x08 0x000a 00",
+    subprocess.call("hcitool -i hci0 cmd 0x08 0x000a 00",
                     shell=True, stdout=DEVNULL)
 
 def showVersion():
@@ -360,7 +360,6 @@ def main():
     if args.version:
         showVersion()
     else:
-        subprocess.call(["sudo", "-v"])
         if args.terminate:
             stopAdvertising()
         elif args.one:
